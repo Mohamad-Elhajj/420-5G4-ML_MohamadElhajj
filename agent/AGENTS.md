@@ -27,6 +27,15 @@ cmake --build build -j
 - Le binaire produit est `build/bibliotheque` ; `build/*` est ignoré par `agent/.gitignore`.
 - Le devcontainer `agent/.devcontainer` installe CMake 3.22.2. Son montage X11 est inutile pour cette application en terminal.
 
+## Bindings Python
+
+- `bibliotheque_bindings.cpp` expose `Book`, `User`, `Library` et `FileManager`.
+- La cible `bibliotheque_python` n'est créée que si `pybind11` est trouvé (`find_package(pybind11 CONFIG)`), sinon CMake l'ignore avec un message.
+- Le repli CMake accepte aussi une installation pip de pybind11 via `python3 -m pybind11 --cmakedir` ; activer le venv avant de configurer si nécessaire.
+- Le venv local `agent/.venv` (ignoré par Git) sert à pybind11 ; le recréer avec `python3 -m venv .venv && .venv/bin/pip install pybind11` puis activer `.venv` avant CMake.
+- Une compilation avec pybind11 produit `build/bibliotheque.cpython-*.so` ; l'import se fait avec `PYTHONPATH=build python3 -c 'import bibliotheque'`.
+- La cible Python liste ses sources explicitement : ajouter tout nouveau `.cpp` métier à `bibliotheque_python`.
+
 ## Format des données
 
 Les champs sont séparés sans échappement ; ne pas introduire le séparateur dans une valeur.
