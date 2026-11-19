@@ -4,7 +4,7 @@ import customtkinter as ctk
 from tkinter import messagebox
 
 from . import theme
-from .widgets import BookCard
+from .widgets import BookCard, DialogueBase
 
 
 def normaliser(texte):
@@ -17,10 +17,17 @@ def normaliser(texte):
 
 
 class BooksView(ctk.CTkFrame):
-    def __init__(self, master, library, book_class):
+    def __init__(
+        self,
+        master,
+        library,
+        book_class,
+        sur_modification_utilisateurs=None,
+    ):
         super().__init__(master, fg_color="transparent")
         self.library = library
         self.book_class = book_class
+        self.sur_modification_utilisateurs = sur_modification_utilisateurs
         self.filtre_etat = "tous"
         self.recherche_var = ctk.StringVar()
         self.filtre_mode = ctk.StringVar(value="Filtré par")
@@ -247,6 +254,8 @@ class BooksView(ctk.CTkFrame):
 
         if self.library.checkOutBook(livre.getISBN(), dialogue.resultat):
             self.rafraichir()
+            if self.sur_modification_utilisateurs:
+                self.sur_modification_utilisateurs()
         else:
             messagebox.showerror(
                 "Emprunter un livre",
@@ -257,6 +266,8 @@ class BooksView(ctk.CTkFrame):
     def retourner(self, livre):
         if self.library.returnBook(livre.getISBN()):
             self.rafraichir()
+            if self.sur_modification_utilisateurs:
+                self.sur_modification_utilisateurs()
         else:
             messagebox.showerror(
                 "Retourner un livre",
@@ -291,86 +302,7 @@ class BooksView(ctk.CTkFrame):
             )
 
 
-class _DialogueBase(ctk.CTkToplevel):
-    def __init__(self, master, titre, largeur, hauteur):
-        super().__init__(master)
-        self.resultat = None
-        self.title(titre)
-        self.geometry(f"{largeur}x{hauteur}")
-        self.resizable(False, False)
-        self.configure(fg_color=theme.FOND)
-        self.transient(master.winfo_toplevel())
-        self.grid_columnconfigure(0, weight=1)
-        self.after(50, self._finaliser)
-
-    def _finaliser(self):
-        if not self.winfo_exists():
-            return
-        self.update_idletasks()
-        parent = self.master.winfo_toplevel()
-        x = parent.winfo_rootx() + (parent.winfo_width() - self.winfo_width()) // 2
-        y = parent.winfo_rooty() + (parent.winfo_height() - self.winfo_height()) // 2
-        self.geometry(f"+{max(x, 0)}+{max(y, 0)}")
-        try:
-            self.grab_set()
-        except Exception:
-            pass
-
-    def _champ(self, parent, libelle):
-        ctk.CTkLabel(
-            parent,
-            text=libelle,
-            font=theme.police(12),
-            text_color=theme.TEXTE,
-            anchor="w",
-        ).pack(fill="x", padx=20, pady=(10, 2))
-        entree = ctk.CTkEntry(
-            parent,
-            height=32,
-            corner_radius=4,
-            border_width=1,
-            border_color=theme.BORDURE,
-            fg_color=theme.CARTE,
-            text_color=theme.TEXTE,
-            font=theme.police(13),
-        )
-        entree.pack(fill="x", padx=20)
-        return entree
-
-    def _boutons(self, parent, texte_valider, commande_valider):
-        barre = ctk.CTkFrame(parent, fg_color="transparent")
-        barre.pack(fill="x", padx=20, pady=(18, 16))
-        ctk.CTkButton(
-            barre,
-            text="Annuler",
-            width=100,
-            height=32,
-            corner_radius=4,
-            fg_color=theme.BOUTON,
-            hover_color=theme.BOUTON_SURVOL,
-            text_color=theme.TEXTE,
-            border_width=1,
-            border_color=theme.BORDURE,
-            font=theme.police(12),
-            command=self.destroy,
-        ).pack(side="right", padx=(8, 0))
-        ctk.CTkButton(
-            barre,
-            text=texte_valider,
-            width=110,
-            height=32,
-            corner_radius=4,
-            fg_color=theme.BOUTON,
-            hover_color=theme.BOUTON_SURVOL,
-            text_color=theme.TEXTE,
-            border_width=1,
-            border_color=theme.BORDURE,
-            font=theme.police(12),
-            command=commande_valider,
-        ).pack(side="right")
-
-
-class DialogueAjoutLivre(_DialogueBase):
+class DialogueAjoutLivre(DialogueBase):
     def __init__(self, master, library):
         super().__init__(master, "Ajouter un livre", 380, 300)
         self.library = library
@@ -416,7 +348,7 @@ class DialogueAjoutLivre(_DialogueBase):
         self.destroy()
 
 
-class DialogueEmprunt(_DialogueBase):
+class DialogueEmprunt(DialogueBase):
     def __init__(self, master, livre, utilisateurs):
         super().__init__(master, "Emprunter un livre", 420, 250)
         self.utilisateurs = {

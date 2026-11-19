@@ -26,7 +26,8 @@ $ cmake --build build -j
 $ .venv/bin/python -m interface -d data
 ```
 
-Le module compilé est cherché automatiquement dans `build/`. Les modifications sont
-sauvegardées à la fermeture de la fenêtre ou avec « Sauvegarder les données » dans
-l'onglet Paramètres. Pour tester sans modifier les données du projet, utiliser une
-copie temporaire du répertoire `data`.
+Le module compilé est cherché automatiquement dans `build/`. Les écrans Livres et
+Utilisateurs sont fonctionnels ; l'onglet Paramètres reste à compléter. Les
+modifications sont sauvegardées à la fermeture de la fenêtre ou avec
+« Sauvegarder les données » dans l'onglet Paramètres. Pour tester sans modifier les
+données du projet, utiliser une copie temporaire du répertoire `data`.

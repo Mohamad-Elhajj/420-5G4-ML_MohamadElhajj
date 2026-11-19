@@ -41,9 +41,11 @@ cmake --build build -j
 - Le paquet `interface/` construit l'interface à partir du module pybind11 : `.venv/bin/python -m interface -d data` depuis `agent/`.
 - Installer la dépendance avec `.venv/bin/pip install -r requirements.txt` (CustomTkinter).
 - L'interface cherche automatiquement le module compilé dans `build/` ; compiler d'abord le projet.
-- L'écran Livres est complet ; les onglets Utilisateurs et Paramètres sont des squelettes. Paramètres contient le bouton de sauvegarde.
+- Les écrans Livres et Utilisateurs sont complets ; Paramètres reste un squelette avec le bouton de sauvegarde.
+- L'écran Utilisateurs permet l'ajout ; la suppression d'un utilisateur n'est pas proposée. Les cartes affichent le nombre de livres empruntés et leurs ISBN.
 - Les modifications restent en mémoire et ne sont écrites qu'à la fermeture de la fenêtre ou via « Sauvegarder les données ».
 - Recherche et filtre sont appliqués côté Python, sans tenir compte des accents ; la suppression d'un livre emprunté est bloquée.
+- Les cartes de livres et d'utilisateurs utilisent des widgets Tk standards pour rester fluides ; ne pas les remplacer par des `CTkLabel`/`CTkFrame` sans mesurer le coût de rendu.
 - Pour tester sans risque, copier `data/` dans un répertoire temporaire et lancer l'interface avec `-d <temporaire>`.
 
 ## Format des données

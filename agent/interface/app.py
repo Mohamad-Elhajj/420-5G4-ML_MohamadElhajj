@@ -7,6 +7,7 @@ from tkinter import messagebox
 
 from . import theme
 from .books_view import BooksView
+from .users_view import UsersView
 from .widgets import NavBar, PlaceholderView
 
 RACINE_PROJET = Path(__file__).resolve().parent.parent
@@ -56,12 +57,13 @@ class FenetrePrincipale(ctk.CTk):
         self.contenu.grid_columnconfigure(0, weight=1)
 
         self.vues = {
-            "livres": BooksView(self.contenu, self.library, module.Book),
-            "utilisateurs": PlaceholderView(
+            "livres": BooksView(
                 self.contenu,
-                "Utilisateurs",
-                "Cet écran sera ajouté dans une prochaine étape.",
+                self.library,
+                module.Book,
+                sur_modification_utilisateurs=self.rafraichir_utilisateurs,
             ),
+            "utilisateurs": UsersView(self.contenu, self.library, module.User),
             "parametres": PlaceholderView(
                 self.contenu,
                 "Paramètres",
@@ -81,6 +83,11 @@ class FenetrePrincipale(ctk.CTk):
             vue.grid_forget()
         self.vues[nom].grid(row=0, column=0, sticky="nsew")
         self.nav.activer(nom)
+
+    def rafraichir_utilisateurs(self):
+        vue = getattr(self, "vues", {}).get("utilisateurs")
+        if vue is not None:
+            vue.rafraichir()
 
     def sauvegarder(self):
         try:
@@ -109,7 +116,7 @@ class FenetrePrincipale(ctk.CTk):
                 parent=self,
             ):
                 return
-        self.destroy()
+        self.quit()
 
 
 def analyser_arguments():
