@@ -17,6 +17,7 @@ class NavBar(ctk.CTkFrame):
         )
         self._sur_changement = sur_changement
         self._boutons = {}
+        self._soulignements = {}
         self.grid_propagate(False)
 
         entrees = (
@@ -26,6 +27,7 @@ class NavBar(ctk.CTkFrame):
         )
 
         self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, minsize=2)
         for index, (cle, texte) in enumerate(entrees):
             colonne = index * 2
             self.grid_columnconfigure(colonne, weight=1)
@@ -43,6 +45,10 @@ class NavBar(ctk.CTkFrame):
             bouton.grid(row=0, column=colonne, sticky="nsew")
             self._boutons[cle] = bouton
 
+            soulignement = tk.Frame(self, height=2, bg=theme.CARTE)
+            soulignement.grid(row=1, column=colonne, sticky="ew")
+            self._soulignements[cle] = soulignement
+
             if index < len(entrees) - 1:
                 separateur = ctk.CTkFrame(
                     self,
@@ -50,14 +56,18 @@ class NavBar(ctk.CTkFrame):
                     fg_color=theme.BORDURE,
                     corner_radius=0,
                 )
-                separateur.grid(row=0, column=colonne + 1, sticky="ns")
+                separateur.grid(
+                    row=0,
+                    column=colonne + 1,
+                    rowspan=2,
+                    sticky="ns",
+                )
 
     def activer(self, cle):
-        for nom, bouton in self._boutons.items():
+        for nom in self._boutons:
             actif = nom == cle
-            bouton.configure(
-                fg_color=theme.ACTIF if actif else "transparent",
-                font=theme.police(14, "bold") if actif else theme.police(14),
+            self._soulignements[nom].configure(
+                bg=theme.TEXTE if actif else theme.CARTE
             )
 
 
@@ -289,59 +299,3 @@ class DialogueBase(ctk.CTkToplevel):
             font=theme.police(12),
             command=commande_valider,
         ).pack(side="right")
-
-
-class PlaceholderView(ctk.CTkFrame):
-    def __init__(
-        self,
-        master,
-        titre,
-        message,
-        action_texte=None,
-        action=None,
-    ):
-        super().__init__(master, fg_color="transparent")
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)
-
-        entete = ctk.CTkFrame(self, fg_color="transparent")
-        entete.grid(row=0, column=0, sticky="ew", padx=24, pady=(18, 10))
-        ctk.CTkLabel(
-            entete,
-            text="Bibliothèque",
-            font=theme.police(30),
-            text_color=theme.TEXTE,
-            anchor="w",
-        ).pack(anchor="w")
-        ctk.CTkLabel(
-            entete,
-            text=titre,
-            font=theme.police(13),
-            text_color=theme.TEXTE,
-            anchor="w",
-        ).pack(anchor="w")
-
-        corps = ctk.CTkFrame(self, fg_color="transparent")
-        corps.grid(row=1, column=0, sticky="nsew")
-        ctk.CTkLabel(
-            corps,
-            text=message,
-            font=theme.police(16),
-            text_color=theme.TEXTE_SECONDAIRE,
-        ).pack(expand=True)
-
-        if action_texte and action:
-            ctk.CTkButton(
-                corps,
-                text=action_texte,
-                width=200,
-                height=36,
-                corner_radius=4,
-                fg_color=theme.BOUTON,
-                hover_color=theme.BOUTON_SURVOL,
-                text_color=theme.TEXTE,
-                border_width=1,
-                border_color=theme.BORDURE,
-                font=theme.police(13),
-                command=action,
-            ).pack(pady=(0, 60))

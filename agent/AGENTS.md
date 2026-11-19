@@ -16,7 +16,7 @@ cmake --build build -j
 
 - Toujours fournir `-d` ou `--data-dir` : sans cette option, les chemins de fichiers sont vides et la sauvegarde échoue.
 - Le répertoire passé à `-d` doit contenir `books.txt` et `users.txt`.
-- L'application C++ est interactive et terminal-only. Le choix `0` sauvegarde puis quitte ; le choix `13` crée des fichiers `.backup`.
+- L'application C++ est interactive et terminal-only. Le choix `0` sauvegarde puis quitte ; le choix `13` crée ou écrase les fichiers `.backup`.
 - Pour un test sans modifier les données suivies, copier `data/` dans un répertoire temporaire et lancer avec `-d <temporaire>`.
 - Il n'y a ni tests, ni linter, ni CI. Vérifier une modification par la compilation, puis par une exécution avec des données temporaires.
 
@@ -41,10 +41,12 @@ cmake --build build -j
 - Le paquet `interface/` construit l'interface à partir du module pybind11 : `.venv/bin/python -m interface -d data` depuis `agent/`.
 - Installer la dépendance avec `.venv/bin/pip install -r requirements.txt` (CustomTkinter).
 - L'interface cherche automatiquement le module compilé dans `build/` ; compiler d'abord le projet.
-- Les écrans Livres et Utilisateurs sont complets ; Paramètres reste un squelette avec le bouton de sauvegarde.
+- Les écrans Livres, Utilisateurs et Paramètres sont complets.
 - L'écran Utilisateurs permet l'ajout ; la suppression d'un utilisateur n'est pas proposée. Les cartes affichent le nombre de livres empruntés et leurs ISBN.
+- L'écran Paramètres propose « Sauvegarder les données », « Créer une sauvegarde » et « Statistiques de la bibliothèque ». La création de sauvegarde enregistre d'abord les données puis écrase `books.txt.backup` et `users.txt.backup`.
 - Les modifications restent en mémoire et ne sont écrites qu'à la fermeture de la fenêtre ou via « Sauvegarder les données ».
 - Recherche et filtre sont appliqués côté Python, sans tenir compte des accents ; la suppression d'un livre emprunté est bloquée.
+- La barre de navigation souligne l'onglet actif.
 - Les cartes de livres et d'utilisateurs utilisent des widgets Tk standards pour rester fluides ; ne pas les remplacer par des `CTkLabel`/`CTkFrame` sans mesurer le coût de rendu.
 - Pour tester sans risque, copier `data/` dans un répertoire temporaire et lancer l'interface avec `-d <temporaire>`.
 

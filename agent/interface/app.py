@@ -7,8 +7,9 @@ from tkinter import messagebox
 
 from . import theme
 from .books_view import BooksView
+from .settings_view import SettingsView
 from .users_view import UsersView
-from .widgets import NavBar, PlaceholderView
+from .widgets import NavBar
 
 RACINE_PROJET = Path(__file__).resolve().parent.parent
 REPERTOIRE_BUILD = RACINE_PROJET / "build"
@@ -64,12 +65,11 @@ class FenetrePrincipale(ctk.CTk):
                 sur_modification_utilisateurs=self.rafraichir_utilisateurs,
             ),
             "utilisateurs": UsersView(self.contenu, self.library, module.User),
-            "parametres": PlaceholderView(
+            "parametres": SettingsView(
                 self.contenu,
-                "Paramètres",
-                "Cet écran sera complété dans une prochaine étape.",
-                action_texte="Sauvegarder les données",
-                action=self.sauvegarder_avec_confirmation,
+                self.library,
+                self.sauvegarder_avec_confirmation,
+                self.creer_sauvegarde,
             ),
         }
 
@@ -107,6 +107,35 @@ class FenetrePrincipale(ctk.CTk):
                 "Les données de la bibliothèque ont été sauvegardées.",
                 parent=self,
             )
+
+    def creer_sauvegarde(self):
+        if not self.sauvegarder():
+            return
+
+        try:
+            succes = self.file_manager.createBackup()
+        except Exception as exc:
+            messagebox.showerror(
+                "Créer une sauvegarde",
+                f"Impossible de créer la sauvegarde.\n\n{exc}",
+                parent=self,
+            )
+            return
+
+        if not succes:
+            messagebox.showerror(
+                "Créer une sauvegarde",
+                "Impossible de créer les fichiers de sauvegarde.",
+                parent=self,
+            )
+            return
+
+        messagebox.showinfo(
+            "Créer une sauvegarde",
+            "Les données ont été sauvegardées puis copiées dans "
+            "books.txt.backup et users.txt.backup.",
+            parent=self,
+        )
 
     def quitter(self):
         if not self.sauvegarder():
