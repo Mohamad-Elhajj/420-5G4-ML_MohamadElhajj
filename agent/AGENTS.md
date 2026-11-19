@@ -2,7 +2,7 @@
 
 ## Portée
 
-Ce dossier contient uniquement l'application C++ `bibliotheque`. Les notebooks Python des dossiers parents `apprentissage/` et `analyse_image/` ne concernent pas ce périmètre. Conserver les textes affichés, messages et commentaires en français.
+Ce dossier contient l'application C++ `bibliotheque` et son interface graphique Python CustomTkinter. Les notebooks Python des dossiers parents `apprentissage/` et `analyse_image/` ne concernent pas ce périmètre. Conserver les textes affichés, messages et commentaires en français.
 
 ## Compiler et exécuter
 
@@ -16,7 +16,7 @@ cmake --build build -j
 
 - Toujours fournir `-d` ou `--data-dir` : sans cette option, les chemins de fichiers sont vides et la sauvegarde échoue.
 - Le répertoire passé à `-d` doit contenir `books.txt` et `users.txt`.
-- L'application est interactive et terminal-only. Le choix `0` sauvegarde puis quitte ; le choix `13` crée des fichiers `.backup`.
+- L'application C++ est interactive et terminal-only. Le choix `0` sauvegarde puis quitte ; le choix `13` crée des fichiers `.backup`.
 - Pour un test sans modifier les données suivies, copier `data/` dans un répertoire temporaire et lancer avec `-d <temporaire>`.
 - Il n'y a ni tests, ni linter, ni CI. Vérifier une modification par la compilation, puis par une exécution avec des données temporaires.
 
@@ -36,6 +36,16 @@ cmake --build build -j
 - Une compilation avec pybind11 produit `build/bibliotheque.cpython-*.so` ; l'import se fait avec `PYTHONPATH=build python3 -c 'import bibliotheque'`.
 - La cible Python liste ses sources explicitement : ajouter tout nouveau `.cpp` métier à `bibliotheque_python`.
 
+## Interface graphique CustomTkinter
+
+- Le paquet `interface/` construit l'interface à partir du module pybind11 : `.venv/bin/python -m interface -d data` depuis `agent/`.
+- Installer la dépendance avec `.venv/bin/pip install -r requirements.txt` (CustomTkinter).
+- L'interface cherche automatiquement le module compilé dans `build/` ; compiler d'abord le projet.
+- L'écran Livres est complet ; les onglets Utilisateurs et Paramètres sont des squelettes. Paramètres contient le bouton de sauvegarde.
+- Les modifications restent en mémoire et ne sont écrites qu'à la fermeture de la fenêtre ou via « Sauvegarder les données ».
+- Recherche et filtre sont appliqués côté Python, sans tenir compte des accents ; la suppression d'un livre emprunté est bloquée.
+- Pour tester sans risque, copier `data/` dans un répertoire temporaire et lancer l'interface avec `-d <temporaire>`.
+
 ## Format des données
 
 Les champs sont séparés sans échappement ; ne pas introduire le séparateur dans une valeur.
@@ -43,4 +53,4 @@ Les champs sont séparés sans échappement ; ne pas introduire le séparateur d
 - `books.txt` : `titre|auteur|isbn|1-ou-0|idEmprunteur`
 - `users.txt` : `nom|id|isbn1,isbn2`
 
-Les données sont chargées au démarrage et sauvegardées uniquement via le menu `12` ou à la sortie avec `0`.
+Les données sont chargées au démarrage et sauvegardées via le menu `12` ou à la sortie avec `0` pour l'application C++, à la fermeture ou via Paramètres pour l'interface graphique.
